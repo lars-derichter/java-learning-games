@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Method Signature Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 30px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            flex: 1;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .game-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .question {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .signature-builder {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            min-height: 60px;
+            align-items: center;
+            border: 2px dashed #dee2e6;
+        }
+
+        .signature-part {
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+        }
+
+        .option-btn:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .option-btn.correct {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .option-btn.incorrect {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            animation: fadeIn 0.5s;
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .feedback.hint {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            transition: border-color 0.3s;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .timer {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #dc3545;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s;
+        }
+
+        .matching-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .match-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .match-item {
+            padding: 15px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .match-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .match-item.selected {
+            background: #e7f3ff;
+            border-color: #667eea;
+        }
+
+        .match-item.matched {
+            background: #d4edda;
+            border-color: #28a745;
+            cursor: default;
+        }
+
+        .detective-code {
+            padding: 20px;
+            background: #2d3436;
+            color: #dfe6e9;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .error-highlight {
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .start-screen {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .start-screen h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .start-screen p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .level-indicator {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .streak {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #ffc107;
+            color: #333;
+            border-radius: 5px;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .matching-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+            
+            .stat-box {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🚀 Java Method Signatures Trainer</h1>
+            <p>Leer stap voor stap method signatures maken!</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="currentLevel">1</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Punten</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Streak 🔥</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Mode</div>
+                <div class="stat-value" id="gameMode">Start</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div class="start-screen">
+                <h2>Welkom bij de Java Method Signatures Trainer!</h2>
+                <p>
+                    Deze game helpt je om method signatures onder de knie te krijgen.<br>
+                    Je gaat door 5 verschillende game modes:<br><br>
+                    <strong>🔧 Level 1-5:</strong> Signature Builder - Bouw signatures op<br>
+                    <strong>🎯 Level 6-10:</strong> Match Challenge - Koppel beschrijvingen aan signatures<br>
+                    <strong>⚡ Level 11-15:</strong> Quick Fire - Snelle multiple choice vragen<br>
+                    <strong>🔍 Level 16-20:</strong> Detective - Vind en fix fouten<br>
+                    <strong>✍️ Level 21-30:</strong> Code het Zelf - Type complete signatures<br><br>
+                    Na level 30 kun je blijven oefenen met oneindig veel challenges!
+                </p>
+                <button class="btn btn-primary" onclick="startGame()">Start de Game!</button>
+                <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em; color: #6c757d;">
+                    <strong>🎮 Test Mode Cheat Codes:</strong><br>
+                    <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> = Spring naar level<br>
+                    <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> = Toon antwoord<br>
+                    <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> = +1000 punten<br>
+                    <em style="font-size: 0.85em;">Note: Cheat codes werken mogelijk niet in de Claude app interface. 
+                    Open de HTML in een browser voor volledige functionaliteit.</em>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let currentLevel = 1;
+        let score = 0;
+        let streak = 0;
+        let currentQuestion = null;
+        let selectedParts = [];
+        let hintCount = 0;
+        let timer = null;
+        let timeLeft = 30;
+        let matchedPairs = [];
+        let selectedMatch = null;
+        let userAnswer = '';
+        let attempts = 0;
+
+        // Level data
+        const levels = [
+            // Level 1-5: Signature Builder
+            {
+                mode: 'builder',
+                question: 'Maak een methode die twee getallen optelt en het resultaat teruggeeft.',
+                correctSignature: ['public', 'int', 'telOp', '(int getal1, int getal2)'],
+                options: {
+                    returnType: ['void', 'int', 'double', 'String'],
+                    name: ['telOp', 'optellen', 'sum', 'berekenSom'],
+                    params: ['()', '(int getal1)', '(int getal1, int getal2)', '(double a, double b)']
+                },
+                hint: 'Denk na: wat voor type geven we terug als we twee integers optellen?'
+            },
+            {
+                mode: 'builder',
+                question: 'Maak een methode die een begroeting print naar de console.',
+                correctSignature: ['public', 'void', 'printBegroeting', '()'],
+                options: {
+                    returnType: ['void', 'String', 'int', 'boolean'],
+                    name: ['printBegroeting', 'begroet', 'zegHallo', 'print'],
+                    params: ['()', '(String naam)', '(String tekst)', '(int aantal)']
+                },
+                hint: 'Een methode die alleen print geeft niks terug. Welk return type gebruik je dan?'
+            },
+            {
+                mode: 'builder',
+                question: 'Maak een methode die controleert of een getal positief is.',
+                correctSignature: ['public', 'boolean', 'isPositief', '(int getal)'],
+                options: {
+                    returnType: ['void', 'int', 'boolean', 'String'],
+                    name: ['isPositief', 'checkPositief', 'positief', 'controleer'],
+                    params: ['()', '(int getal)', '(double getal)', '(int a, int b)']
+                },
+                hint: 'Een controle geeft waar of onwaar terug. Welk type is dat?'
+            },
+            {
+                mode: 'builder',
+                question: 'Maak een methode die de naam van een persoon teruggeeft.',
+                correctSignature: ['public', 'String', 'getNaam', '()'],
+                options: {
+                    returnType: ['void', 'String', 'char', 'int'],
+                    name: ['getNaam', 'geefNaam', 'naam', 'krijgNaam'],
+                    params: ['()', '(String naam)', '(int id)', '(String voor, String achter)']
+                },
+                hint: 'Een naam is tekst. Welk type gebruik je voor tekst in Java?'
+            },
+            {
+                mode: 'builder',
+                question: 'Maak een methode die het gemiddelde van drie getallen berekent.',
+                correctSignature: ['public', 'double', 'berekenGemiddelde', '(double a, double b, double c)'],
+                options: {
+                    returnType: ['int', 'double', 'float', 'void'],
+                    name: ['berekenGemiddelde', 'gemiddelde', 'average', 'bereken'],
+                    params: ['(int a, int b, int c)', '(double a, double b, double c)', '(double[] getallen)', '()']
+                },
+                hint: 'Een gemiddelde kan een decimaal getal zijn. Welk type is het beste?'
+            },
+
+            // Level 6-10: Method Match Challenge
+            {
+                mode: 'match',
+                pairs: [
+                    {
+                        description: 'Bereken de oppervlakte van een rechthoek',
+                        signature: 'public int berekenOppervlakte(int lengte, int breedte)'
+                    },
+                    {
+                        description: 'Print een welkomstbericht',
+                        signature: 'public void toonWelkom()'
+                    },
+                    {
+                        description: 'Controleer of iemand meerderjarig is',
+                        signature: 'public boolean isMeerderjarig(int leeftijd)'
+                    },
+                    {
+                        description: 'Geef de hoofdletter versie van een tekst',
+                        signature: 'public String naarHoofdletters(String tekst)'
+                    }
+                ]
+            },
+            {
+                mode: 'match',
+                pairs: [
+                    {
+                        description: 'Tel het aantal karakters in een tekst',
+                        signature: 'public int telKarakters(String tekst)'
+                    },
+                    {
+                        description: 'Vergelijk twee getallen en geef het grootste terug',
+                        signature: 'public int maximum(int a, int b)'
+                    },
+                    {
+                        description: 'Zet Celsius om naar Fahrenheit',
+                        signature: 'public double celsiusNaarFahrenheit(double celsius)'
+                    },
+                    {
+                        description: 'Controleer of een getal even is',
+                        signature: 'public boolean isEven(int getal)'
+                    }
+                ]
+            },
+            {
+                mode: 'match',
+                pairs: [
+                    {
+                        description: 'Maak een volledig adres van losse delen',
+                        signature: 'public String maakAdres(String straat, int nummer, String stad)'
+                    },
+                    {
+                        description: 'Bereken BTW bedrag',
+                        signature: 'public double berekenBTW(double bedrag, double percentage)'
+                    },
+                    {
+                        description: 'Reset alle waardes naar default',
+                        signature: 'public void reset()'
+                    },
+                    {
+                        description: 'Valideer een email adres',
+                        signature: 'public boolean isGeldigEmail(String email)'
+                    }
+                ]
+            },
+            {
+                mode: 'match',
+                pairs: [
+                    {
+                        description: 'Bereken het verschil tussen drie getallen',
+                        signature: 'public void berekenVerschillen(int a, int b, int c)'
+                    },
+                    {
+                        description: 'Genereer een willekeurig getal tussen min en max',
+                        signature: 'public int randomGetal(int min, int max)'
+                    },
+                    {
+                        description: 'Formateer een bedrag als valuta',
+                        signature: 'public String formateerBedrag(double bedrag)'
+                    },
+                    {
+                        description: 'Controleer of een jaar een schrikkeljaar is',
+                        signature: 'public boolean isSchrikkeljaar(int jaar)'
+                    }
+                ]
+            },
+            {
+                mode: 'match',
+                pairs: [
+                    {
+                        description: 'Bereken compound interest',
+                        signature: 'public double berekenRente(double hoofdsom, double rente, int jaren)'
+                    },
+                    {
+                        description: 'Vind de langste tekst uit twee teksten',
+                        signature: 'public String langsteTekst(String tekst1, String tekst2)'
+                    },
+                    {
+                        description: 'Tel het aantal klinkers in een woord',
+                        signature: 'public int telKlinkers(String woord)'
+                    },
+                    {
+                        description: 'Bepaal eindcijfer op basis van deelcijfers',
+                        signature: 'public double berekenEindcijfer(double toets1, double toets2, double project)'
+                    }
+                ]
+            },
+
+            // Level 11-15: Quick Fire Signatures
+            {
+                mode: 'quickfire',
+                question: 'Welke signature hoort bij: "Controleer of een String leeg is"?',
+                options: [
+                    'public boolean isEmpty(String tekst)',
+                    'public void isEmpty(String tekst)',
+                    'public String isEmpty(String tekst)',
+                    'public int isEmpty(String tekst)'
+                ],
+                correct: 0,
+                timeLimit: 15
+            },
+            {
+                mode: 'quickfire',
+                question: 'Welke signature hoort bij: "Bereken het kwadraat van een getal"?',
+                options: [
+                    'public void kwadraat(int getal)',
+                    'public double kwadraat(double getal)',
+                    'public String kwadraat(int getal)',
+                    'public boolean kwadraat(double getal)'
+                ],
+                correct: 1,
+                timeLimit: 15
+            },
+            {
+                mode: 'quickfire',
+                question: 'Welke signature hoort bij: "Print drie getallen op het scherm"?',
+                options: [
+                    'public int printGetallen(int a, int b, int c)',
+                    'public void printGetallen(int a, int b, int c)',
+                    'public String printGetallen(int getal)',
+                    'public boolean printGetallen(int a, int b, int c)'
+                ],
+                correct: 1,
+                timeLimit: 12
+            },
+            {
+                mode: 'quickfire',
+                question: 'Welke signature hoort bij: "Genereer een gebruikersnaam uit voornaam en achternaam"?',
+                options: [
+                    'public void maakGebruikersnaam(String voor, String achter)',
+                    'public int maakGebruikersnaam(String naam)',
+                    'public String maakGebruikersnaam(String voornaam, String achternaam)',
+                    'public boolean maakGebruikersnaam(String voor, String achter)'
+                ],
+                correct: 2,
+                timeLimit: 12
+            },
+            {
+                mode: 'quickfire',
+                question: 'Welke signature hoort bij: "Rond een decimaal getal af naar boven"?',
+                options: [
+                    'public int afronden(double getal)',
+                    'public double afronden(int getal)',
+                    'public void afronden(double getal)',
+                    'public String afronden(double getal)'
+                ],
+                correct: 0,
+                timeLimit: 10
+            },
+
+            // Level 16-20: Signature Detective
+            {
+                mode: 'detective',
+                code: 'public int berekenSom(int a, b)',
+                error: 'Parameter b mist een type declaratie',
+                hint: 'Elke parameter moet zijn eigen type hebben!'
+            },
+            {
+                mode: 'detective',
+                code: 'public berekenProduct(int x, int y)',
+                error: 'Return type ontbreekt',
+                hint: 'Wat geeft de methode terug? Vergeet het return type niet!'
+            },
+            {
+                mode: 'detective',
+                code: 'public void String getText()',
+                error: 'Je kunt niet zowel void als String als return type hebben',
+                hint: 'Een methode kan maar één return type hebben!'
+            },
+            {
+                mode: 'detective',
+                code: 'public double berekenGemiddelde()',
+                error: 'Parameters ontbreken voor het berekenen van een gemiddelde',
+                hint: 'Hoe kun je een gemiddelde berekenen zonder getallen?'
+            },
+            {
+                mode: 'detective',
+                code: 'public boolean isGeldig(String tekst;)',
+                error: 'Gebruik een komma in plaats van puntkomma tussen parameters',
+                hint: 'Parameters worden gescheiden door kommas, niet door puntkommas!'
+            },
+
+            // Level 21-30: Code het Zelf
+            {
+                mode: 'code',
+                question: 'Schrijf een method signature voor een methode die twee Strings samenvoegt.',
+                expectedSignature: 'public String voegSamen(String deel1, String deel2)',
+                alternatives: [
+                    'public String samenvoegen(String s1, String s2)',
+                    'public String combineer(String tekst1, String tekst2)',
+                    'public String voegTekstSamen(String a, String b)'
+                ]
+            },
+            {
+                mode: 'code',
+                question: 'Schrijf een method signature voor een methode die de leeftijd van een persoon verhoogt.',
+                expectedSignature: 'public void verhoogLeeftijd()',
+                alternatives: [
+                    'public void verhoogLeeftijd(int aantal)',
+                    'public int verhoogLeeftijd()',
+                    'public void incrementLeeftijd()'
+                ]
+            },
+            {
+                mode: 'code',
+                question: 'Schrijf een method signature voor een methode die het kleinste getal uit drie getallen vindt.',
+                expectedSignature: 'public int vindKleinste(int a, int b, int c)',
+                alternatives: [
+                    'public int minimum(int getal1, int getal2, int getal3)',
+                    'public int kleinsteGetal(int x, int y, int z)',
+                    'public int getMinimum(int eerste, int tweede, int derde)'
+                ]
+            },
+            {
+                mode: 'code',
+                question: 'Schrijf een method signature voor een methode die controleert of een wachtwoord sterk genoeg is.',
+                expectedSignature: 'public boolean isSterkWachtwoord(String wachtwoord)',
+                alternatives: [
+                    'public boolean controleerWachtwoord(String pwd)',
+                    'public boolean valideerWachtwoord(String password)',
+                    'public boolean checkWachtwoord(String ww)'
+                ]
+            },
+            {
+                mode: 'code',
+                question: 'Schrijf een method signature voor een methode die de prijs inclusief korting berekent.',
+                expectedSignature: 'public double berekenPrijsMetKorting(double prijs, double kortingPercentage)',
+                alternatives: [
+                    'public double berekenKorting(double bedrag, double percentage)',
+                    'public double prijsNaKorting(double originelePrijs, double korting)',
+                    'public double getGereduceerdePrijs(double prijs, double reductie)'
+                ]
+            },
+            {
+                mode: 'code',
+                question: 'Schrijf een method signature voor een methode die drie getallen van klein naar groot print.',
+                expectedSignature: 'public void sorteerEnPrint(int a, int b, int c)',
+                alternatives: [
+                    'public void printGesorteerd(int getal1, int getal2, int getal3)',
+                    'public void sorteer(int x, int y, int z)',
+                    'public void printKleinNaarGroot(int eerste, int tweede, int derde)'
+                ]
+            },
+            {
+                mode: 'code',
+                question: 'Schrijf een method signature voor een methode die de initialen van een persoon maakt.',
+                expectedSignature: 'public String maakInitialen(String voornaam, String achternaam)',
+                alternatives: [
+                    'public String getInitialen(String voor, String achter)',
+                    'public String initialen(String firstName, String lastName)',
+                    'public String berekenInitialen(String naam1, String naam2)'
+                ]
+            },
+            {
+                mode: 'code',
+                question: 'Schrijf een method signature voor een methode die het aantal dagen in een bepaalde maand teruggeeft.',
+                expectedSignature: 'public int getDagenInMaand(int maand, int jaar)',
+                alternatives: [
+                    'public int aantalDagen(int maand, int jaar)',
+                    'public int berekenDagen(int maandNummer, int jaarGetal)',
+                    'public int dagenInMaand(int m, int j)'
+                ]
+            },
+            {
+                mode: 'code',
+                question: 'Schrijf een method signature voor een methode die een lijst met scores reset.',
+                expectedSignature: 'public void resetScores()',
+                alternatives: [
+                    'public void clearScores()',
+                    'public void wisScores()',
+                    'public void verwijderAlleScores()'
+                ]
+            },
+            {
+                mode: 'code',
+                question: 'Schrijf een method signature voor een methode die een percentage omzet naar een decimaal getal.',
+                expectedSignature: 'public double percentageNaarDecimaal(double percentage)',
+                alternatives: [
+                    'public double converteerPercentage(double perc)',
+                    'public double vanPercentage(double waarde)',
+                    'public double zetOmNaarDecimaal(double percent)'
+                ]
+            }
+        ];
+
+        // Start game
+        function startGame() {
+            currentLevel = 1;
+            score = 0;
+            streak = 0;
+            attempts = 0;
+            updateStats();
+            loadLevel();
+        }
+
+        // Cheat code for testing - Press Ctrl+Shift+L to jump to any level
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+                const jumpLevel = prompt('🎮 CHEAT MODE - Spring naar level (1-30, of 31+ voor endless):', currentLevel);
+                if (jumpLevel && !isNaN(jumpLevel)) {
+                    const newLevel = parseInt(jumpLevel);
+                    if (newLevel > 0) {
+                        currentLevel = newLevel;
+                        attempts = 0;
+                        hintCount = 0;
+                        clearInterval(timer); // Clear any running timer
+                        loadLevel();
+                        showFeedback('hint', `🎮 CHEAT: Gesprongen naar level ${currentLevel}`);
+                        console.log('🎮 Jumped to level ' + currentLevel);
+                    }
+                }
+            }
+            // Extra cheat: Ctrl+Shift+S to add 1000 points
+            if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+                score += 1000;
+                updateStats();
+                showFeedback('correct', '💰 CHEAT: +1000 punten!');
+            }
+            // Extra cheat: Ctrl+Shift+H for free hint
+            if (e.ctrlKey && e.shiftKey && e.key === 'H') {
+                if (currentQuestion) {
+                    let cheatHint = '';
+                    if (currentQuestion.mode === 'builder') {
+                        cheatHint = `CHEAT: Antwoord = ${currentQuestion.correctSignature.join(' ')}`;
+                    } else if (currentQuestion.mode === 'quickfire') {
+                        cheatHint = `CHEAT: Juiste optie = #${currentQuestion.correct + 1}`;
+                    } else if (currentQuestion.mode === 'detective') {
+                        cheatHint = `CHEAT: Fout = ${currentQuestion.error}`;
+                    } else if (currentQuestion.mode === 'code') {
+                        cheatHint = `CHEAT: Antwoord = ${currentQuestion.expectedSignature}`;
+                    } else if (currentQuestion.mode === 'match') {
+                        cheatHint = 'CHEAT: Check de console voor de juiste koppelingen!';
+                        console.log('Juiste koppelingen:', currentQuestion.pairs);
+                    }
+                    showFeedback('hint', `🔑 ${cheatHint}`);
+                }
+            }
+        });
+
+        // Load current level
+        function loadLevel() {
+            if (currentLevel > 30) {
+                loadEndlessMode();
+                return;
+            }
+
+            if (currentLevel < 1 || currentLevel > levels.length) {
+                showFeedback('incorrect', `❌ Level ${currentLevel} bestaat niet! Spring naar level 1-30 of 31+ voor endless mode.`);
+                currentLevel = 1;
+            }
+
+            currentQuestion = levels[currentLevel - 1];
+            hintCount = 0;
+            attempts = 0;
+            clearFeedback();
+            updateStats();
+            updateProgress();
+
+            const gameArea = document.getElementById('gameArea');
+            
+            switch(currentQuestion.mode) {
+                case 'builder':
+                    loadBuilderLevel();
+                    break;
+                case 'match':
+                    loadMatchLevel();
+                    break;
+                case 'quickfire':
+                    loadQuickfireLevel();
+                    break;
+                case 'detective':
+                    loadDetectiveLevel();
+                    break;
+                case 'code':
+                    loadCodeLevel();
+                    break;
+            }
+        }
+
+        // Signature Builder Mode
+        function loadBuilderLevel() {
+            selectedParts = [];
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = `
+                <div class="level-indicator">Level ${currentLevel}: Signature Builder</div>
+                <div class="question">${currentQuestion.question}</div>
+                <div class="signature-builder" id="signatureBuilder">
+                    <div class="signature-part">public</div>
+                </div>
+                <h3 style="margin: 20px 0 10px;">Kies het return type:</h3>
+                <div class="options" id="returnOptions"></div>
+                <h3 style="margin: 20px 0 10px;">Kies de method naam:</h3>
+                <div class="options" id="nameOptions"></div>
+                <h3 style="margin: 20px 0 10px;">Kies de parameters:</h3>
+                <div class="options" id="paramOptions"></div>
+                <div class="action-buttons">
+                    <button class="btn btn-warning" onclick="getHint()">💡 Hint (−5 punten)</button>
+                    <button class="btn btn-primary" onclick="checkBuilderAnswer()">Controleer</button>
+                </div>
+                <div id="feedback"></div>
+            `;
+
+            // Add options
+            const returnDiv = document.getElementById('returnOptions');
+            currentQuestion.options.returnType.forEach(type => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = type;
+                btn.onclick = () => selectPart('return', type, btn);
+                returnDiv.appendChild(btn);
+            });
+
+            const nameDiv = document.getElementById('nameOptions');
+            currentQuestion.options.name.forEach(name => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = name;
+                btn.onclick = () => selectPart('name', name, btn);
+                nameDiv.appendChild(btn);
+            });
+
+            const paramDiv = document.getElementById('paramOptions');
+            currentQuestion.options.params.forEach(param => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = param;
+                btn.onclick = () => selectPart('params', param, btn);
+                paramDiv.appendChild(btn);
+            });
+        }
+
+        function selectPart(type, value, btn) {
+            // Clear previous selection of this type
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            selectedParts[type] = value;
+            updateSignatureBuilder();
+        }
+
+        function updateSignatureBuilder() {
+            const builder = document.getElementById('signatureBuilder');
+            let parts = ['<div class="signature-part">public</div>'];
+            
+            if (selectedParts['return']) {
+                parts.push(`<div class="signature-part">${selectedParts['return']}</div>`);
+            }
+            if (selectedParts['name']) {
+                parts.push(`<div class="signature-part">${selectedParts['name']}</div>`);
+            }
+            if (selectedParts['params']) {
+                parts.push(`<div class="signature-part">${selectedParts['params']}</div>`);
+            }
+            
+            builder.innerHTML = parts.join('');
+        }
+
+        function checkBuilderAnswer() {
+            const correct = currentQuestion.correctSignature;
+            const userSignature = ['public'];
+            
+            if (selectedParts['return']) userSignature.push(selectedParts['return']);
+            if (selectedParts['name']) userSignature.push(selectedParts['name']);
+            if (selectedParts['params']) userSignature.push(selectedParts['params']);
+
+            const isCorrect = 
+                userSignature[1] === correct[1] && 
+                userSignature[2] === correct[2] && 
+                userSignature[3] === correct[3];
+
+            if (isCorrect) {
+                showFeedback('correct', '🎉 Uitstekend! Je hebt de juiste signature gemaakt!');
+                score += 100 - (hintCount * 5) - (attempts * 10);
+                streak++;
+                showNextButton();
+            } else {
+                attempts++;
+                if (attempts >= 3) {
+                    showFeedback('incorrect', `❌ Het juiste antwoord was: ${correct.join(' ')}`);
+                    streak = 0;
+                    showNextButton();
+                } else {
+                    showFeedback('incorrect', `❌ Dat klopt niet helemaal. Probeer het nog eens! (Poging ${attempts}/3)`);
+                }
+            }
+            updateStats();
+        }
+
+        // Method Match Challenge Mode
+        function loadMatchLevel() {
+            matchedPairs = [];
+            selectedMatch = null;
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = `
+                <div class="level-indicator">Level ${currentLevel}: Match Challenge</div>
+                <div class="question">Koppel de beschrijvingen aan de juiste method signatures!</div>
+                <div class="matching-container">
+                    <div class="match-column" id="descriptions"></div>
+                    <div class="match-column" id="signatures"></div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-warning" onclick="getHint()">💡 Hint (−5 punten)</button>
+                </div>
+                <div id="feedback"></div>
+            `;
+
+            const descriptions = document.getElementById('descriptions');
+            const signatures = document.getElementById('signatures');
+
+            // Create shuffled arrays but keep track of original pairs
+            const descriptionsOrder = [...currentQuestion.pairs].sort(() => Math.random() - 0.5);
+            const signaturesOrder = [...currentQuestion.pairs].sort(() => Math.random() - 0.5);
+
+            descriptionsOrder.forEach((pair) => {
+                const descDiv = document.createElement('div');
+                descDiv.className = 'match-item';
+                descDiv.textContent = pair.description;
+                descDiv.dataset.description = pair.description;
+                descDiv.dataset.correctSignature = pair.signature;
+                descDiv.onclick = () => selectMatchItem(descDiv, 'description');
+                descriptions.appendChild(descDiv);
+            });
+
+            signaturesOrder.forEach((pair) => {
+                const sigDiv = document.createElement('div');
+                sigDiv.className = 'match-item';
+                sigDiv.textContent = pair.signature;
+                sigDiv.dataset.signature = pair.signature;
+                sigDiv.onclick = () => selectMatchItem(sigDiv, 'signature');
+                signatures.appendChild(sigDiv);
+            });
+        }
+
+        function selectMatchItem(element, type) {
+            if (element.classList.contains('matched')) return;
+
+            if (type === 'description') {
+                // Deselect previous description if any
+                if (selectedMatch && selectedMatch.type === 'description') {
+                    selectedMatch.element.classList.remove('selected');
+                }
+                selectedMatch = { 
+                    element, 
+                    type, 
+                    description: element.dataset.description,
+                    correctSignature: element.dataset.correctSignature 
+                };
+                element.classList.add('selected');
+            } else if (type === 'signature') {
+                if (selectedMatch && selectedMatch.type === 'description') {
+                    // Check if match is correct
+                    if (selectedMatch.correctSignature === element.dataset.signature) {
+                        // Correct match
+                        selectedMatch.element.classList.remove('selected');
+                        selectedMatch.element.classList.add('matched');
+                        element.classList.add('matched');
+                        matchedPairs.push({
+                            description: selectedMatch.description,
+                            signature: element.dataset.signature
+                        });
+                        selectedMatch = null;
+
+                        if (matchedPairs.length === currentQuestion.pairs.length) {
+                            showFeedback('correct', '🎉 Perfect! Alle koppelingen zijn correct!');
+                            score += 100 - (hintCount * 5) - (attempts * 10);
+                            streak++;
+                            updateStats();
+                            showNextButton();
+                        }
+                    } else {
+                        // Wrong match
+                        showFeedback('incorrect', '❌ Deze koppeling klopt niet. Probeer opnieuw!');
+                        selectedMatch.element.classList.remove('selected');
+                        selectedMatch = null;
+                        attempts++;
+                        streak = 0;
+                        updateStats();
+                    }
+                } else if (selectedMatch && selectedMatch.type === 'signature') {
+                    // Deselect previous signature and select description
+                    selectedMatch.element.classList.remove('selected');
+                    selectedMatch = { 
+                        element, 
+                        type: 'signature',
+                        signature: element.dataset.signature 
+                    };
+                    element.classList.add('selected');
+                }
+            }
+        }
+
+        // Quick Fire Mode
+        function loadQuickfireLevel() {
+            timeLeft = currentQuestion.timeLimit;
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = `
+                <div class="level-indicator">Level ${currentLevel}: Quick Fire ⚡</div>
+                <div class="timer">⏱️ Tijd: <span id="timeDisplay">${timeLeft}</span> seconden</div>
+                <div class="question">${currentQuestion.question}</div>
+                <div class="options" id="quickOptions"></div>
+                <div id="feedback"></div>
+            `;
+
+            const optionsDiv = document.getElementById('quickOptions');
+            currentQuestion.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.style.width = '100%';
+                btn.style.marginBottom = '10px';
+                btn.textContent = option;
+                btn.onclick = () => checkQuickAnswer(index, btn);
+                optionsDiv.appendChild(btn);
+            });
+
+            startTimer();
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timeDisplay').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    showFeedback('incorrect', '⏰ Tijd is op! Het juiste antwoord was: ' + currentQuestion.options[currentQuestion.correct]);
+                    streak = 0;
+                    updateStats();
+                    showNextButton();
+                }
+            }, 1000);
+        }
+
+        function checkQuickAnswer(index, btn) {
+            clearInterval(timer);
+            
+            if (index === currentQuestion.correct) {
+                btn.classList.add('correct');
+                showFeedback('correct', '🎉 Correct! Goed gedaan!');
+                score += 100 + (timeLeft * 2);
+                streak++;
+            } else {
+                btn.classList.add('incorrect');
+                document.querySelectorAll('.option-btn')[currentQuestion.correct].classList.add('correct');
+                showFeedback('incorrect', '❌ Helaas, dat was niet correct.');
+                streak = 0;
+            }
+            
+            updateStats();
+            showNextButton();
+        }
+
+        // Detective Mode
+        function loadDetectiveLevel() {
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = `
+                <div class="level-indicator">Level ${currentLevel}: Signature Detective 🔍</div>
+                <div class="question">Vind de fout in deze method signature:</div>
+                <div class="detective-code">${currentQuestion.code}</div>
+                <div class="question">Wat is er mis?</div>
+                <input type="text" class="code-input" id="errorInput" placeholder="Beschrijf de fout...">
+                <div class="action-buttons">
+                    <button class="btn btn-warning" onclick="getHint()">💡 Hint (−5 punten)</button>
+                    <button class="btn btn-primary" onclick="checkDetectiveAnswer()">Controleer</button>
+                </div>
+                <div id="feedback"></div>
+            `;
+        }
+
+        function checkDetectiveAnswer() {
+            const userInput = document.getElementById('errorInput').value.toLowerCase();
+            
+            // More flexible checking - look for key concepts, not exact wording
+            let isCorrect = false;
+            
+            // Check based on the level/error type
+            if (currentLevel === 16) {
+                // "Parameter b mist een type declaratie"
+                isCorrect = (userInput.includes('type') && (userInput.includes('b') || userInput.includes('parameter'))) ||
+                           (userInput.includes('parameter') && userInput.includes('ontbreekt')) ||
+                           userInput.includes('geen type') ||
+                           userInput.includes('mist type');
+            } else if (currentLevel === 17) {
+                // "Return type ontbreekt"
+                isCorrect = userInput.includes('return') || 
+                           (userInput.includes('type') && userInput.includes('ontbreekt')) ||
+                           userInput.includes('geen return') ||
+                           userInput.includes('mist return');
+            } else if (currentLevel === 18) {
+                // "Je kunt niet zowel void als String als return type hebben"
+                isCorrect = (userInput.includes('void') && userInput.includes('string')) ||
+                           userInput.includes('twee return') ||
+                           userInput.includes('dubbel') ||
+                           userInput.includes('beide') ||
+                           (userInput.includes('meer') && userInput.includes('return'));
+            } else if (currentLevel === 19) {
+                // "Parameters ontbreken voor het berekenen van een gemiddelde"
+                isCorrect = userInput.includes('parameter') ||
+                           userInput.includes('geen invoer') ||
+                           userInput.includes('geen getal') ||
+                           userInput.includes('ontbreekt') ||
+                           userInput.includes('mist');
+            } else if (currentLevel === 20) {
+                // "Gebruik een komma in plaats van puntkomma tussen parameters"
+                isCorrect = (userInput.includes('puntkomma') || userInput.includes(';')) ||
+                           userInput.includes('komma') ||
+                           userInput.includes('scheiding') ||
+                           userInput.includes('separator');
+            }
+            
+            if (isCorrect) {
+                showFeedback('correct', `🎉 Correct! Inderdaad: ${currentQuestion.error}`);
+                score += 100 - (hintCount * 5);
+                streak++;
+                updateStats();
+                showNextButton();
+            } else {
+                attempts++;
+                if (attempts >= 2) {
+                    showFeedback('incorrect', `❌ Het juiste antwoord was: ${currentQuestion.error}\n\nJouw antwoord was ook goed als je het kernprobleem benoemde!`);
+                    streak = 0;
+                    updateStats();
+                    showNextButton();
+                } else {
+                    showFeedback('incorrect', `❌ Nog niet helemaal. Beschrijf wat er mis is met de code. Je hoeft niet exact te zijn! (Poging ${attempts}/2)`);
+                }
+            }
+        }
+
+        // Code It Yourself Mode
+        function loadCodeLevel() {
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = `
+                <div class="level-indicator">Level ${currentLevel}: Code het Zelf ✍️</div>
+                <div class="question">${currentQuestion.question}</div>
+                <input type="text" class="code-input" id="codeInput" placeholder="Type je method signature hier...">
+                <div class="action-buttons">
+                    <button class="btn btn-warning" onclick="getHint()">💡 Hint (−5 punten)</button>
+                    <button class="btn btn-primary" onclick="checkCodeAnswer()">Controleer</button>
+                </div>
+                <div id="feedback"></div>
+            `;
+        }
+
+        function checkCodeAnswer() {
+            const userCode = document.getElementById('codeInput').value.trim();
+            const expected = currentQuestion.expectedSignature;
+            
+            // Parse signatures to check structure rather than exact names
+            function parseSignature(sig) {
+                const normalized = sig.replace(/\s+/g, ' ').trim();
+                const match = normalized.match(/public\s+(\w+)\s+(\w+)\s*\((.*)\)/);
+                
+                if (!match) return null;
+                
+                const [, returnType, methodName, params] = match;
+                
+                // Parse parameters
+                const paramList = params.trim() ? params.split(',').map(p => {
+                    const parts = p.trim().split(/\s+/);
+                    if (parts.length >= 2) {
+                        return parts[0]; // Return just the type
+                    }
+                    return parts[0] || '';
+                }) : [];
+                
+                return {
+                    returnType: returnType.toLowerCase(),
+                    methodName: methodName,
+                    paramTypes: paramList.map(p => p.toLowerCase()),
+                    paramCount: paramList.length
+                };
+            }
+            
+            const userParsed = parseSignature(userCode);
+            const expectedParsed = parseSignature(expected);
+            
+            let feedback = '';
+            let isCorrect = false;
+            
+            if (!userParsed) {
+                feedback = '❌ De syntax van je signature klopt niet. Controleer of je de juiste structuur hebt: public [returnType] [methodName]([parameters])';
+            } else if (!userCode.toLowerCase().includes('public')) {
+                feedback = '❌ Vergeet "public" niet aan het begin van je signature!';
+            } else {
+                // Check structure
+                const returnTypeCorrect = userParsed.returnType === expectedParsed.returnType;
+                const paramTypesCorrect = JSON.stringify(userParsed.paramTypes) === JSON.stringify(expectedParsed.paramTypes);
+                const paramCountCorrect = userParsed.paramCount === expectedParsed.paramCount;
+                
+                if (returnTypeCorrect && paramTypesCorrect) {
+                    isCorrect = true;
+                    feedback = `🎉 Perfect! Je signature is correct!\n\n📝 Jouw antwoord: ${userCode}\n✅ Mijn antwoord: ${expected}\n\nDe types en structuur kloppen helemaal!`;
+                } else {
+                    let errors = [];
+                    if (!returnTypeCorrect) {
+                        errors.push(`Return type: je hebt '${userParsed.returnType}', verwacht was '${expectedParsed.returnType}'`);
+                    }
+                    if (!paramCountCorrect) {
+                        errors.push(`Aantal parameters: je hebt ${userParsed.paramCount}, verwacht was ${expectedParsed.paramCount}`);
+                    } else if (!paramTypesCorrect) {
+                        errors.push(`Parameter types: je hebt [${userParsed.paramTypes.join(', ')}], verwacht was [${expectedParsed.paramTypes.join(', ')}]`);
+                    }
+                    
+                    attempts++;
+                    if (attempts >= 3) {
+                        feedback = `❌ Helaas, dat is niet correct.\n\n${errors.join('\n')}\n\n📝 Jouw antwoord: ${userCode}\n✅ Mijn antwoord: ${expected}`;
+                        streak = 0;
+                    } else {
+                        feedback = `❌ Nog niet helemaal goed. (Poging ${attempts}/3)\n\n${errors.join('\n')}\n\n💡 Tip: De namen van methodes en parameters mogen verschillen, maar de types moeten exact kloppen!`;
+                    }
+                }
+            }
+            
+            if (isCorrect) {
+                showFeedback('correct', feedback);
+                score += 100 - (hintCount * 5);
+                streak++;
+                updateStats();
+                showNextButton();
+            } else {
+                if (attempts >= 3) {
+                    showFeedback('incorrect', feedback);
+                    updateStats();
+                    showNextButton();
+                } else {
+                    showFeedback('incorrect', feedback);
+                }
+            }
+        }
+
+        // Endless Mode
+        function loadEndlessMode() {
+            const templates = [
+                { 
+                    task: 'een methode die controleert of een tekst een bepaald woord bevat',
+                    signature: 'public boolean bevatWoord(String tekst, String woord)'
+                },
+                {
+                    task: 'een methode die de factuur totaal berekent inclusief BTW',
+                    signature: 'public double berekenTotaal(double bedrag, double btwPercentage)'
+                },
+                {
+                    task: 'een methode die een wachtwoord genereert van een bepaalde lengte',
+                    signature: 'public String genereerWachtwoord(int lengte)'
+                },
+                {
+                    task: 'een methode die het grootste van drie getallen vindt',
+                    signature: 'public int vindMaximum(int a, int b, int c)'
+                },
+                {
+                    task: 'een methode die twee datums vergelijkt',
+                    signature: 'public int vergelijkDatums(String datum1, String datum2)'
+                },
+                {
+                    task: 'een methode die een email adres valideert',
+                    signature: 'public boolean isGeldigEmail(String email)'
+                },
+                {
+                    task: 'een methode die de lengte van een tekst teruggeeft',
+                    signature: 'public int getTekstLengte(String tekst)'
+                },
+                {
+                    task: 'een methode die drie namen alfabetisch print',
+                    signature: 'public void printNamenAlfabetisch(String naam1, String naam2, String naam3)'
+                },
+                {
+                    task: 'een methode die de som van vier getallen berekent',
+                    signature: 'public int berekenSom(int a, int b, int c, int d)'
+                },
+                {
+                    task: 'een methode die controleert of een getal priemgetal is',
+                    signature: 'public boolean isPriemgetal(int getal)'
+                },
+                {
+                    task: 'een methode die de kortste van twee teksten teruggeeft',
+                    signature: 'public String kortsteString(String tekst1, String tekst2)'
+                },
+                {
+                    task: 'een methode die een cijfer omzet naar een letter (A-F)',
+                    signature: 'public char cijferNaarLetter(double cijfer)'
+                },
+                {
+                    task: 'een methode die het verschil tussen twee getallen berekent',
+                    signature: 'public int berekenVerschil(int getal1, int getal2)'
+                }
+            ];
+
+            const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+            currentQuestion = {
+                mode: 'code',
+                question: `Schrijf een method signature voor ${randomTemplate.task}.`,
+                expectedSignature: randomTemplate.signature,
+                alternatives: []
+            };
+
+            loadCodeLevel();
+            
+            // Update mode display
+            document.getElementById('gameMode').textContent = 'Endless';
+        }
+
+        // Helper Functions
+        function showNextButton() {
+            const feedbackDiv = document.getElementById('feedback');
+            if (feedbackDiv) {
+                feedbackDiv.innerHTML += '<br><button class="btn btn-primary" onclick="nextLevel()">Volgende →</button>';
+            }
+        }
+
+        function getHint() {
+            if (hintCount >= 2) {
+                showFeedback('hint', '💡 Je hebt al het maximum aantal hints gebruikt!');
+                return;
+            }
+            
+            hintCount++;
+            let hintText = currentQuestion.hint || 'Denk goed na over wat de methode moet doen en wat er teruggegeven wordt.';
+            
+            if (currentQuestion.mode === 'match' && matchedPairs.length < 2) {
+                hintText = '💡 Kijk naar de actie in de beschrijving - wat wordt er teruggegeven?';
+            }
+            
+            showFeedback('hint', `💡 Hint: ${hintText}`);
+        }
+
+        function showFeedback(type, message) {
+            const feedbackDiv = document.getElementById('feedback');
+            feedbackDiv.className = `feedback ${type}`;
+            feedbackDiv.innerHTML = message;
+        }
+
+        function clearFeedback() {
+            const feedbackDiv = document.getElementById('feedback');
+            if (feedbackDiv) {
+                feedbackDiv.className = '';
+                feedbackDiv.innerHTML = '';
+            }
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            loadLevel();
+        }
+
+        function updateStats() {
+            document.getElementById('currentLevel').textContent = currentLevel > 30 ? '∞' : currentLevel;
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            
+            let mode = 'Start';
+            if (currentLevel <= 5) mode = 'Builder';
+            else if (currentLevel <= 10) mode = 'Match';
+            else if (currentLevel <= 15) mode = 'Quick Fire';
+            else if (currentLevel <= 20) mode = 'Detective';
+            else if (currentLevel <= 30) mode = 'Code';
+            else if (currentLevel > 30) mode = 'Endless';
+            
+            document.getElementById('gameMode').textContent = mode;
+        }
+
+        function updateProgress() {
+            const progress = Math.min((currentLevel / 30) * 100, 100);
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+    </script>
+</body>
+</html>
